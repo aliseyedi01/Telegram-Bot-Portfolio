@@ -17,17 +17,25 @@ BOT_USERNAME: Final = '@BlockCodeBot'
 response = requests.get(
     f'https://api.telegram.org/bot<{TOKEN}>/getMe', timeout=30)
 
+# Buttons
+main_buttons = [[InlineKeyboardButton('About Me 👨‍💻', callback_data='info'),
+                 InlineKeyboardButton('Skills  ⌨️ ', callback_data='skills')],
+                [InlineKeyboardButton('Resume  🧾', callback_data='resume'),
+                 InlineKeyboardButton('Projects  🌐', callback_data='project')],
+                [InlineKeyboardButton('Contact  📞', callback_data='contact')]
+                ]
 
-async def send_information(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('This is where you can find information about me and my work.')
+contact_buttons = [
+    [InlineKeyboardButton('GitHub 🔮', url='https://github.com/aliseyedi01'),
+        InlineKeyboardButton('LinkedIn 👨‍💻', url='https://www.linkedin.com/in/aliseyedi01/')],
+    [InlineKeyboardButton('Email  ✉', url='https://mail.google.com/mail/u/0/?view=cm&fs=1&to=aliseyedi07@gmail.com1'),
+        InlineKeyboardButton('Chat  🗯', url='https://t.me/aliseyedi01')],
+    [InlineKeyboardButton('Back 🔙', callback_data='back_contact')]
+]
 
 
-async def send_projects(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Here you can find a list of my projects.')
-
-
-async def send_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Feel free to contact me at email protected')
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Welcome to My Bot!', reply_markup=InlineKeyboardMarkup(main_buttons))
 
 
 async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -38,45 +46,40 @@ async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     if data == "info":
         await send_information(update, context)
+    elif data == "skills":
+        await send_skills(update, context)
+    elif data == "resume":
+        await send_resume(update, context)
     elif data == "project":
         await send_projects(update, context)
     elif data == "contact":
-        # Create inline buttons for contact options
-        contact_buttons = [
-            [InlineKeyboardButton('GitHub 🔮', url='https://github.com/aliseyedi01'),
-             InlineKeyboardButton('LinkedIn 👨‍💻', url='https://www.linkedin.com/in/aliseyedi01/')],
-            [InlineKeyboardButton('Email  ✉', url='https://mail.google.com/mail/u/0/?view=cm&fs=1&to=aliseyedi07@gmail.com1'),
-             InlineKeyboardButton('Chat  🗯', url='https://t.me/aliseyedi01')],
-            [InlineKeyboardButton('Back 🔙', callback_data='back_contact')]
-        ]
-
-        # Send message with inline keyboard for contact options
-        await update.callback_query.edit_message_text(
-            text='Select a contact option:',
-            reply_markup=InlineKeyboardMarkup(contact_buttons)
-        )
-
+        await send_contact(update, context)
     elif data == "back_contact":
-        buttons = [
-            [InlineKeyboardButton('Information', callback_data='info'),
-             InlineKeyboardButton('Projects', callback_data='project'),
-             InlineKeyboardButton('Contact', callback_data='contact')]
-        ]
-
-        await query.edit_message_text(
-            text='Welcome to my bot!',
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
+        await send_back_contact(update, context)
 
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Create inline buttons
-    buttons = [[InlineKeyboardButton('Information', callback_data='info'),
-                InlineKeyboardButton('Projects', callback_data='project'),
-                InlineKeyboardButton('contact', callback_data='contact')]]
+async def send_back_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.callback_query.edit_message_text(text='Welcome to my bot!', reply_markup=InlineKeyboardMarkup(main_buttons))
 
-    # Send message with inline keyboard
-    await update.message.reply_text('Welcome to my bot!', reply_markup=InlineKeyboardMarkup(buttons))
+
+async def send_information(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('This is where you can find information about me and my work.')
+
+
+async def send_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.callback_query.edit_message_text(text='Select a contact option:', reply_markup=InlineKeyboardMarkup(contact_buttons))
+
+
+async def send_projects(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Here you can find a list of my projects.')
+
+
+async def send_skills(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Here you can find a list of my skills.')
+
+
+async def send_resume(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Here you can find my resume')
 
 
 # Response
@@ -95,7 +98,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message_type: str = update.message.chat.type
         text: str = update.message.text
 
-        print(f'User ({update.message.chat.id}) in {message_type}: "{text}" ')
+        # print(f'User ({update.message.chat.id}) in {message_type}: "{text}" ')
 
         if message_type == "group":
             if BOT_USERNAME in text:
@@ -139,4 +142,4 @@ if __name__ == '__main__':
     app.add_error_handler(error)
 
     print('polling ...')
-    app.run_polling()
+    app.run_polling(timeout=10)
