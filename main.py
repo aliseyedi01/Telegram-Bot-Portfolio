@@ -32,18 +32,33 @@ contact_buttons = [
 
 back_buttons = [[InlineKeyboardButton('🔙 Back', callback_data='back_contact')]]
 
-# Skills
-front_end_skills = [
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "React",
-    "Vue.js",
-    "Angular",
-    "Bootstrap",
-    "Sass",
-    "Webpack",
-    "Responsive Web Design",
+# text
+skills_text = [
+    "*Languages*",
+    "   HTML",
+    "   JavaScript",
+    "   TypeScript",
+    "*Libraries & Framework*",
+    "   React\.js",
+    "   Next\.js",
+    "   Redux",
+    "   Redux Toolkit",
+    "   React Query",
+    "*Styles*",
+    "   Css",
+    "   Sass",
+    "   Tailwind Css",
+    "   Bootstrap",
+    "   Material\-UI",
+    "   Ant\-Design",
+    "   Shadcn\-UI",
+    "*Tools*",
+    "   Git",
+    "   Git Hub",
+    "   Post Man",
+    "   Fire base",
+    "   Supa base",
+    "   Figma",
 ]
 
 about_text = "This is where you can find \n information about me and my work."
@@ -76,16 +91,15 @@ class MyBot:
         await update.callback_query.edit_message_text(text='Select a contact option:', reply_markup=self.create_inline_keyboard(contact_buttons))
 
     async def send_projects(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.callback_query.edit_message_text('Here you can find a list of my projects.', reply_markup=self.create_inline_keyboard(back_buttons))
+        await update.callback_query.edit_message_text('Here you can find a list of my projects', reply_markup=self.create_inline_keyboard(back_buttons))
 
     async def send_resume(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.callback_query.edit_message_text('Here you can find my resume', reply_markup=self.create_inline_keyboard(back_buttons))
+        await update.callback_query.edit_message_text('Here you can find *my resume*', reply_markup=self.create_inline_keyboard(back_buttons), parse_mode="MarkdownV2")
 
     async def send_skills(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        skill_text = "Front-End Skills:\n"
-        skill_text += "\n".join(front_end_skills)
-
-        await update.callback_query.edit_message_text(text=skill_text, reply_markup=self.create_inline_keyboard(back_buttons))
+        skill_text = "\n".join(skills_text)
+        logger.info(skill_text)
+        await update.callback_query.edit_message_text(text=skill_text, reply_markup=self.create_inline_keyboard(back_buttons), parse_mode="MarkdownV2")
 
     async def handle_button_press(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
