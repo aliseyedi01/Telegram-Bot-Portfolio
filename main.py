@@ -61,7 +61,12 @@ skills_text = [
     "   Figma",
 ]
 
-about_text = "This is where you can find \n information about me and my work."
+about_text = """
+I'm *Ali Seyedi*, a passionate Front\-End developer with one year of experience \. I continuously enhance my coding skills through online resources, articles, and hands\-on projects \. My journey includes exploring _web and mobile development_, with a focus on *JavaScript* and *TypeScript* \.
+I've worked with popular libraries like __React\.js__ and the __Next\.js__ framework \.Check out my skills section for a complete list of technologies I've mastered \. Currently seeking new opportunities to expand my expertise and tackle fresh challenges
+Feel free to share educational resources or projects that align with my goals \.
+👉 ||Let's connect and grow together \!||
+"""
 
 
 class MyBot:
@@ -85,7 +90,7 @@ class MyBot:
         await update.callback_query.edit_message_text(text='Welcome to my bot!', reply_markup=self.create_inline_keyboard(main_buttons))
 
     async def send_information(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.callback_query.edit_message_text(text=about_text, reply_markup=self.create_inline_keyboard(back_buttons))
+        await update.callback_query.edit_message_text(text=about_text, reply_markup=self.create_inline_keyboard(back_buttons), parse_mode="MarkdownV2")
 
     async def send_contact(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.callback_query.edit_message_text(text='Select a contact option:', reply_markup=self.create_inline_keyboard(contact_buttons))
