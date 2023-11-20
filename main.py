@@ -1,9 +1,8 @@
 # telegram
-import requests
 import os
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
 import logging
 
 load_dotenv()
@@ -32,6 +31,11 @@ contact_buttons = [
 
 back_buttons = [[InlineKeyboardButton('🔙 Back', callback_data='back_contact')]]
 
+
+resume_buttons = [[InlineKeyboardButton('📰 PDF ', callback_data='pdf'),
+                   InlineKeyboardButton('🖥  Website ', url='https://portfolio-aliseyedi01.vercel.app/en')],
+                  [InlineKeyboardButton('🔙  Back', callback_data='back_contact')]
+                  ]
 # text
 skills_text = [
     "*Languages*",
@@ -95,15 +99,22 @@ class MyBot:
     async def send_contact(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.callback_query.edit_message_text(text='Select a contact option:', reply_markup=self.create_inline_keyboard(contact_buttons))
 
+    async def send_pdf(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        pdf_file_path = 'English.pdf'
+
+        # Open the PDF file
+        with open(pdf_file_path, 'rb') as pdf_file:
+            # Send the PDF file
+            await context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=InputFile(pdf_file, filename='English.pdf'))
+
     async def send_projects(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.callback_query.edit_message_text('Here you can find a list of my projects', reply_markup=self.create_inline_keyboard(back_buttons))
 
     async def send_resume(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.callback_query.edit_message_text('Here you can find *my resume*', reply_markup=self.create_inline_keyboard(back_buttons), parse_mode="MarkdownV2")
+        await update.callback_query.edit_message_text('Here you can find *My Resume*', reply_markup=self.create_inline_keyboard(resume_buttons), parse_mode="MarkdownV2")
 
     async def send_skills(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         skill_text = "\n".join(skills_text)
-        logger.info(skill_text)
         await update.callback_query.edit_message_text(text=skill_text, reply_markup=self.create_inline_keyboard(back_buttons), parse_mode="MarkdownV2")
 
     async def handle_button_press(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -120,6 +131,8 @@ class MyBot:
             await self.send_projects(update, context)
         elif data == "contact":
             await self.send_contact(update, context)
+        elif data == "pdf":
+            await self.send_pdf(update, context)
         elif data == "back_contact":
             await self.send_back_contact(update, context)
 
