@@ -9,7 +9,7 @@ import logging
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
-BOT_USERNAME = '@BlockCodeBot'
+BOT_USERNAME = '@AliSeyediBot'
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
