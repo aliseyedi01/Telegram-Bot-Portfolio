@@ -47,7 +47,7 @@ A Telegram bot built with Python using the `python-telegram-bot` library. The bo
 4. Run the bot:
 
     ```bash
-    python your_bot_script.py
+    python main.py
     ```
 
 ## Usage
