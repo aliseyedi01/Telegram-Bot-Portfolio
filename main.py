@@ -1,5 +1,6 @@
 # telegram
 import os
+import requests
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
@@ -107,8 +108,77 @@ class MyBot:
             # Send the PDF file
             await context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=InputFile(pdf_file, filename='English.pdf'))
 
-    async def send_projects(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.callback_query.edit_message_text('Here you can find a list of my projects', reply_markup=self.create_inline_keyboard(back_buttons))
+    async def send_github_projects(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        github_username = 'aliseyedi01'
+        github_api_url = f'https://api.github.com/users/{github_username}/repos'
+
+        try:
+            response = requests.get(github_api_url)
+            response.raise_for_status()
+            repositories = response.json()
+        except requests.RequestException as e:
+            logger.error(f'Error fetching GitHub repositories: {e}')
+            await update.callback_query.edit_message_text('Error fetching GitHub repositories.')
+            return
+
+        buttons = []
+        row = []
+        for repo in repositories:
+            project_name = repo['name']
+            button = InlineKeyboardButton(project_name, callback_data=f'repo_{repo["id"]}')
+            row.append(button)
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+
+        # Add the remaining buttons if any
+        if row:
+            buttons.append(row)
+
+        # Add a back button
+        buttons.append([InlineKeyboardButton('🔙 Back', callback_data='back_contact')])
+
+        keyboard = InlineKeyboardMarkup(buttons)
+
+        await update.callback_query.edit_message_text('Select a repository:', reply_markup=keyboard)
+
+    async def send_repo_details(self, update: Update, context: ContextTypes.DEFAULT_TYPE, repo_id: str):
+        github_username = 'aliseyedi01'
+        github_api_url = f'https://api.github.com/repositories/{repo_id}'
+
+        try:
+            response = requests.get(github_api_url)
+            response.raise_for_status()
+            repo_details = response.json()
+        except requests.RequestException as e:
+            logger.error(f'Error fetching GitHub repository details: {e}')
+            await update.callback_query.edit_message_text('Error fetching GitHub repository details.')
+            return
+
+        # Get information
+        repo_name = repo_details.get('name', 'Unnamed Repository')
+        repo_description = repo_details.get('description', 'No description available')
+        repo_html_url = repo_details.get('html_url')
+        repo_language = repo_details.get('language', 'without language')
+        repo_technologies = repo_details.get('topics', [])
+
+        # Format text
+        name_text = f"<b>🔅 {repo_name} 🔅</b>"
+        description_text = f"<strong>💠 Description</strong>: {repo_description}"
+        technologies_text = "\n".join([f"       {technology}" for technology in repo_technologies])
+        technologies_text = f"<strong>✨ Technologies</strong>:\n{technologies_text}" if technologies_text else ""
+        languages_text = f"<strong>💡 Language</strong>: {repo_language}" if repo_language else ""
+        url_text = f"<a href='{repo_html_url}'>🌐 Online</a>"
+
+        # Final format
+        details_text = f"{name_text}\n\n{description_text}\n\n" \
+            f"{languages_text}\n\n{technologies_text}\n\n" \
+            f"{url_text}"
+
+        details_keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton('🔙 Back', callback_data='project')]])
+
+        await update.callback_query.edit_message_text(text=details_text, reply_markup=details_keyboard, parse_mode="HTML")
 
     async def send_resume(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.callback_query.edit_message_text('Here you can find *My Resume*', reply_markup=self.create_inline_keyboard(resume_buttons), parse_mode="MarkdownV2")
@@ -128,11 +198,17 @@ class MyBot:
         elif data == "resume":
             await self.send_resume(update, context)
         elif data == "project":
-            await self.send_projects(update, context)
+            await self.send_github_projects(update, context)
         elif data == "contact":
             await self.send_contact(update, context)
         elif data == "pdf":
             await self.send_pdf(update, context)
+        elif data == "back_contact":
+            await self.send_back_contact(update, context)
+        elif data.startswith("repo_"):
+            # Extract the repository ID from the callback data
+            repo_id = data.split('_')[1]
+            await self.send_repo_details(update, context, repo_id)
         elif data == "back_contact":
             await self.send_back_contact(update, context)
 
