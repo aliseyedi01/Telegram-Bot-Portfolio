@@ -213,30 +213,34 @@ class MyBot:
             await self.send_back_contact(update, context)
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text('Welcome to My Bot!', reply_markup=self.create_inline_keyboard(main_buttons))
+        user_name = update.message.from_user.first_name
+        logger.info(f'Start command received from user: {user_name}')
+        await update.message.reply_text(f'Welcome to My Bot, {user_name}!', reply_markup=self.create_inline_keyboard(main_buttons))
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.message:
             message_type = update.message.chat.type
+            user_name = update.message.from_user.first_name
             text = update.message.text
+
+            logger.info(f'Message received from user {user_name}: {text}')
 
             if message_type == "group" and BOT_USERNAME in text:
                 new_text = text.replace(BOT_USERNAME, '').strip()
-                response = self.handle_response(new_text)
+                response = self.handle_response(new_text, user_name)
             elif message_type != "group":
-                response = self.handle_response(text)
+                response = self.handle_response(text, user_name)
             else:
                 return
 
             await update.message.reply_text(response)
 
-    def handle_response(self, text):
+    def handle_response(self, text, user_name):
         processed = text.lower()
 
         if "hello" in processed:
-            return 'hey there!'
-
-        return "I do not understand what you wrote ..."
+            return f'Hey there, {user_name}!'
+        return f"I do not understand what you wrote, {user_name} ..."
 
     async def error(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f'Update {update} caused error {context.error}')
