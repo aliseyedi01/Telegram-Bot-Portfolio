@@ -2,7 +2,7 @@
 
 ## 🌐 Overview
 
-- A Telegram bot built with Python using the `python-telegram-bot` library. 
+- A Telegram bot built with Python using the `python-telegram-bot` library.
 - The bot provides information about the owner, skills, resume, projects, and contact details.
 
 ## 💻 Demo
@@ -10,7 +10,7 @@
 - Online : [Telegram](https://t.me/aliseyedibot)
 
 
-https://github.com/aliseyedi01/Portfolio-Telegram-Bot/assets/118107025/5e0f8c40-9d6d-4c6f-bb7d-d6c5709f81c8
+https://github.com/aliseyedi01/Portfolio-Telegram-Bot/assets/118107025/5dddbc43-4ab4-4a5e-b67b-945b84aa509d
 
 
 
